@@ -1,0 +1,75 @@
+swagger: '2.0'
+info:
+  description: 'This is the API that handles CRUD operations for Discipline Jar.'
+  version: '1.0.0'
+  title: Discipline Jar API Gateway.
+
+paths:
+  /user/settings:
+    get:
+      responses:
+        200:
+          description: 200 response
+          headers:
+            Access-Control-Allow-Origin:
+              type: string
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${UserReadSettings.Arn}/invocations'
+        responses:
+          default:
+            statusCode: 200
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+        passthroughBehavior: when_no_match
+        httpMethod: POST #always POST
+        type: aws_proxy
+    post:
+      responses:
+        200:
+          description: 200 response
+          headers:
+            Access-Control-Allow-Origin:
+              type: string
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${UserWriteSettings.Arn}/invocations'
+        responses:
+          default:
+            statusCode: 200
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+        passthroughBehavior: when_no_match
+        httpMethod: POST #always POST
+        type: aws
+    options:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        200:
+          description: '200 response'
+          schema:
+            $ref: '#/definitions/Empty'
+          headers:
+            Access-Control-Allow-Origin:
+              type: string
+            Access-Control-Allow-Methods:
+              type: string
+            Access-Control-Allow-Headers:
+              type: string
+      security:
+        - NONE: []
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 200
+            responseParameters:
+              method.response.header.Access-Control-Allow-Methods: "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'"
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+        requestTemplates:
+          application/json: '{"statusCode": 200}'
+        passthroughBehavior: when_no_match
+        type: mock
