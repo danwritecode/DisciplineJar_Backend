@@ -1,13 +1,6 @@
 AWSTemplateFormatVersion : '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
-#Global Variables for reference within the template
-
-Parameters:
-  CognitoArn:
-    Type: String
-    Default: arn:aws:cognito-idp:us-east-1:406598363245:userpool/us-east-1_DvrafITiG
-
 Resources:
   #API Gateway
   APIGateway:
@@ -22,11 +15,6 @@ Resources:
           Name: 'AWS::Include'
           Parameters:
             Location: s3://discjarswaggertemplate/swagger.yaml
-      Auth:
-        DefaultAuthorizer: CognitoAuth
-        Authorizers:
-          CognitoAuth:
-            UserPoolArn: !Ref CognitoArn
 
   #====================================================================================================================
 
@@ -34,20 +22,30 @@ Resources:
 
   #User Entity
 
-  UserWriteCognitoUserToDb:
+  UserWriteSignup:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: User_Write_CognitoUserToDb
-      Description: A function that is triggered when a Cognito User confirms account to populate User table.
-      CodeUri: User_Write_CognitoUserToDb/
+      FunctionName: User_Write_Signup
+      Description: A function that is triggered by API gateway and writes a user to the user table.
+      CodeUri: User_Write_Signup/
       Handler: lambda_function.lambda_handler
       Role: !GetAtt DynamoDBFullControl.Arn
       Runtime: python3.7
       Timeout: 10
       MemorySize: 768
+      Events:
+        DiscJarAPI:
+          Type: Api
+          Properties:
+            RestApiId: 
+              Ref: APIGateway
+            Path: /user/signup
+            Method: POST
+            Auth:
+              Authorizer: None
       Tags:
         Entity: User
-        Trigger: Cognito
+        Trigger: API Gateway
         Operation: Write
         Destination: DynamoDB
       
@@ -63,7 +61,7 @@ Resources:
       Timeout: 10
       MemorySize: 768
       Events:
-        TactAPI:
+        DiscJarAPI:
           Type: Api
           Properties:
             RestApiId: 
@@ -71,7 +69,7 @@ Resources:
             Path: /user/settings
             Method: POST
             Auth:
-              Authorizer: CognitoAuth
+              Authorizer: None
       Tags:
         Entity: User
         Trigger: API Gateway
@@ -90,7 +88,7 @@ Resources:
       Timeout: 10
       MemorySize: 768
       Events:
-        TactAPI:
+        DiscJarAPI:
           Type: Api
           Properties:
             RestApiId: 
@@ -98,7 +96,34 @@ Resources:
             Path: /user/settings
             Method: GET
             Auth:
-              Authorizer: CognitoAuth
+              Authorizer: None
+      Tags:
+        Entity: User
+        Trigger: API Gateway
+        Operation: Read
+        Destination: DynamoDB
+
+  UserReadDoesUserExist:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: User_Read_DoesUserExist
+      Description: A function that returns whether or not a user exists already.
+      CodeUri: User_Read_DoesUserExist/
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt DynamoDBFullControl.Arn
+      Runtime: python3.7
+      Timeout: 10
+      MemorySize: 768
+      Events:
+        DiscJarAPI:
+          Type: Api
+          Properties:
+            RestApiId: 
+              Ref: APIGateway
+            Path: /user/exists
+            Method: GET
+            Auth:
+              Authorizer: None
       Tags:
         Entity: User
         Trigger: API Gateway
@@ -157,7 +182,7 @@ Resources:
   User:
     Properties:
       PrimaryKey:
-        Name: User_Id
+        Name: Phone_Num
         Type: String
       TableName: User
     Type: AWS::Serverless::SimpleTable

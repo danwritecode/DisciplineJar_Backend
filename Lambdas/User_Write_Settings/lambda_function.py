@@ -12,13 +12,15 @@ def lambda_handler(event, context):
     epochCurrent = calendar.timegm(time.gmtime())
     
     #Assign Variables for all values passed in by event
-    User_Id = event['UserId']
+    Phone_Num = event['PhoneNum']
+    phoneNumFormatted = '+' + Phone_Num[1:]
+
     receiveMotivVid = event['Settings']['ReceiveMotivationalVideo']
     receiveWorkoutPlan = event['Settings']['ReceiveWorkoutPlan']
     personalizedMessage = event['Settings']['PersonalizedMessage']
     
     response = table.update_item(
-        Key={'User_Id': User_Id},
+        Key={'Phone_Num': phoneNumFormatted},
         UpdateExpression='SET Modified_On = :time, Receive_MotivtnlVid_Bool = :receiveMotivVid, Receive_Workout_Bool = :receiveWorkoutPlan, Personal_Message_Tx = :personalizedMessage',
         ExpressionAttributeValues={
             ':time': epochCurrent,

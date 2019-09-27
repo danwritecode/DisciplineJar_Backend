@@ -9,9 +9,11 @@ def lambda_handler(event, context):
     table = dynamodb.Table('User')
         
     try:
-        User_Id = event['queryStringParameters']['User_Id']
+        phoneNum = event['queryStringParameters']['PhoneNum']
+        phoneNumFormatted = '+' + phoneNum[1:]
+        print('Phone Number is: {}'.format(phoneNumFormatted))
         
-        response = table.get_item(Key = {'User_Id':User_Id})
+        response = table.get_item(Key = {'Phone_Num':phoneNumFormatted})
         item = response['Item']
         print(item)
         return { 'statusCode' : 200, 'headers': { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin' : '*' }, 'body' : json.dumps(item, indent=2, default=str) }

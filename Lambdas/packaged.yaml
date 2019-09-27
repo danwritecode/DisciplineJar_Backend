@@ -1,17 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Parameters:
-  CognitoArn:
-    Default: arn:aws:cognito-idp:us-east-1:406598363245:userpool/us-east-1_DvrafITiG
-    Type: String
 Resources:
   APIGateway:
     Properties:
-      Auth:
-        Authorizers:
-          CognitoAuth:
-            UserPoolArn:
-              Ref: CognitoArn
-        DefaultAuthorizer: CognitoAuth
       Cors: '''*'''
       DefinitionBody:
         Fn::Transform:
@@ -68,19 +58,48 @@ Resources:
   User:
     Properties:
       PrimaryKey:
-        Name: User_Id
+        Name: Phone_Num
         Type: String
       TableName: User
     Type: AWS::Serverless::SimpleTable
-  UserReadSettings:
+  UserReadDoesUserExist:
     Properties:
-      CodeUri: s3://discjarsambuild/d0fcee2826cedfac7c6a0e9766d8844e
-      Description: A function that writes User Settings to DynamoDB
+      CodeUri: s3://discjarsambuild/1c8f659134cf3b7a435d99a5a0c176d5
+      Description: A function that returns whether or not a user exists already.
       Events:
-        TactAPI:
+        DiscJarAPI:
           Properties:
             Auth:
-              Authorizer: CognitoAuth
+              Authorizer: None
+            Method: GET
+            Path: /user/exists
+            RestApiId:
+              Ref: APIGateway
+          Type: Api
+      FunctionName: User_Read_DoesUserExist
+      Handler: lambda_function.lambda_handler
+      MemorySize: 768
+      Role:
+        Fn::GetAtt:
+        - DynamoDBFullControl
+        - Arn
+      Runtime: python3.7
+      Tags:
+        Destination: DynamoDB
+        Entity: User
+        Operation: Read
+        Trigger: API Gateway
+      Timeout: 10
+    Type: AWS::Serverless::Function
+  UserReadSettings:
+    Properties:
+      CodeUri: s3://discjarsambuild/39a40cc4dc6256cb7b36a161aec76239
+      Description: A function that writes User Settings to DynamoDB
+      Events:
+        DiscJarAPI:
+          Properties:
+            Auth:
+              Authorizer: None
             Method: GET
             Path: /user/settings
             RestApiId:
@@ -101,12 +120,21 @@ Resources:
         Trigger: API Gateway
       Timeout: 10
     Type: AWS::Serverless::Function
-  UserWriteCognitoUserToDb:
+  UserWriteSettings:
     Properties:
-      CodeUri: s3://discjarsambuild/2183202e46773b7ed1878445d3e7a501
-      Description: A function that is triggered when a Cognito User confirms account
-        to populate User table.
-      FunctionName: User_Write_CognitoUserToDb
+      CodeUri: s3://discjarsambuild/e541a8090b37c266a06a0b77c40d124c
+      Description: A function that writes User Settings to DynamoDB
+      Events:
+        DiscJarAPI:
+          Properties:
+            Auth:
+              Authorizer: None
+            Method: POST
+            Path: /user/settings
+            RestApiId:
+              Ref: APIGateway
+          Type: Api
+      FunctionName: User_Write_Settings
       Handler: lambda_function.lambda_handler
       MemorySize: 768
       Role:
@@ -118,24 +146,25 @@ Resources:
         Destination: DynamoDB
         Entity: User
         Operation: Write
-        Trigger: Cognito
+        Trigger: API Gateway
       Timeout: 10
     Type: AWS::Serverless::Function
-  UserWriteSettings:
+  UserWriteSignup:
     Properties:
-      CodeUri: s3://discjarsambuild/9c4bc6771594bf9deff2f9c272b90073
-      Description: A function that writes User Settings to DynamoDB
+      CodeUri: s3://discjarsambuild/91d559bbdeb1adb09f48a13cec642903
+      Description: A function that is triggered by API gateway and writes a user to
+        the user table.
       Events:
-        TactAPI:
+        DiscJarAPI:
           Properties:
             Auth:
-              Authorizer: CognitoAuth
+              Authorizer: None
             Method: POST
-            Path: /user/settings
+            Path: /user/signup
             RestApiId:
               Ref: APIGateway
           Type: Api
-      FunctionName: User_Write_Settings
+      FunctionName: User_Write_Signup
       Handler: lambda_function.lambda_handler
       MemorySize: 768
       Role:
