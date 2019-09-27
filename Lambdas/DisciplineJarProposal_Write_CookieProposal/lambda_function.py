@@ -8,18 +8,16 @@ import uuid
 def lambda_handler(event, context):
     print(event)
 
-    PhoneNumber_Tx = event['phone_number']
-    
+    cookieProposal = event
     #create timestamp in EPOCH
     epochCurrent = calendar.timegm(time.gmtime())
+
+    cookieProposal['Proposal_Id'] = str(uuid.uuid4())
+    cookieProposal['CreatedOn_Dt'] = epochCurrent
     
-    #create user Dict that will be passed to DynamoDB
-    user = {}
-    user["Phone_Num"] = PhoneNumber_Tx
-    user["CreatedOn_Dt"] = epochCurrent
     
-    print("Writing to Dynamo, here is the Object that is being written: {}".format(user))
-    dynamoResponse = writeToDynamo(user)
+    print("Writing to Dynamo, here is the Object that is being written: {}".format(cookieProposal))
+    dynamoResponse = writeToDynamo(cookieProposal)
     print("Wrote to Dynamo, here is the response: {}".format(dynamoResponse))
     
     return {
@@ -28,13 +26,13 @@ def lambda_handler(event, context):
     }
 
 
-def writeToDynamo(user):
+def writeToDynamo(cookieProposal):
     dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('User')
+    table = dynamodb.Table('DisciplineJar_Proposals')
 
     try:
         #write to dynamo
-        dynamoResponse = table.put_item(Item=user)
+        dynamoResponse = table.put_item(Item=cookieProposal)
         return(dynamoResponse)
 
     except Exception as e:

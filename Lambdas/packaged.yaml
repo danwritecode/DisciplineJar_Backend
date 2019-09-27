@@ -12,12 +12,48 @@ Resources:
       Name: DisciplineJar
       StageName: Prod
     Type: AWS::Serverless::Api
-  Content:
+  DisciplineJar:
     Properties:
       PrimaryKey:
-        Name: Content_Id
+        Name: Cookie_Id
         Type: String
-      TableName: Content
+      TableName: DisciplineJar
+    Type: AWS::Serverless::SimpleTable
+  DisciplineJarProposalWriteCookieProposal:
+    Properties:
+      CodeUri: s3://discjarsambuild/a4189e2b15790a70788b1402523bc682
+      Description: A function that writes a new cookie proposal to the proposals table.
+      Events:
+        DiscJarAPI:
+          Properties:
+            Auth:
+              Authorizer: None
+            Method: POST
+            Path: /cookieproposal
+            RestApiId:
+              Ref: APIGateway
+          Type: Api
+      FunctionName: DisciplineJarProposal_Write_CookieProposal
+      Handler: lambda_function.lambda_handler
+      MemorySize: 768
+      Role:
+        Fn::GetAtt:
+        - DynamoDBFullControl
+        - Arn
+      Runtime: python3.7
+      Tags:
+        Destination: DynamoDB
+        Entity: DisciplineJar Proposal
+        Operation: Write
+        Trigger: API Gateway
+      Timeout: 10
+    Type: AWS::Serverless::Function
+  DisciplineJarProposals:
+    Properties:
+      PrimaryKey:
+        Name: Proposal_Id
+        Type: String
+      TableName: DisciplineJar_Proposals
     Type: AWS::Serverless::SimpleTable
   DynamoCognitoFullAccess:
     Properties:
@@ -55,6 +91,33 @@ Resources:
       Path: /
       RoleName: DynamoDB_FullControl
     Type: AWS::IAM::Role
+  SMSServiceSendSMSToUsers:
+    Properties:
+      CodeUri: s3://discjarsambuild/1818f428fa475689aa449a0704a9e2ab
+      Description: A function that get's a random cookie, get's all users, loops through
+        all users and sends SMS texts to each one.
+      Events:
+        Cron:
+          Properties:
+            Description: Every morning at 8am
+            Enabled: true
+            Name: DailyMorning
+            Schedule: cron(0 8 * * ? *)
+          Type: Schedule
+      FunctionName: SMSService_SendSMSToUsers
+      Handler: lambda_function.lambda_handler
+      MemorySize: 3008
+      Role:
+        Fn::GetAtt:
+        - DynamoDBFullControl
+        - Arn
+      Runtime: python3.7
+      Tags:
+        Destination: nexmo
+        Entity: SMSService
+        Trigger: Unknown
+      Timeout: 30
+    Type: AWS::Serverless::Function
   User:
     Properties:
       PrimaryKey:
@@ -122,7 +185,7 @@ Resources:
     Type: AWS::Serverless::Function
   UserWriteSettings:
     Properties:
-      CodeUri: s3://discjarsambuild/e541a8090b37c266a06a0b77c40d124c
+      CodeUri: s3://discjarsambuild/d3f472bcc2048eaeb0052166c6dd7c6a
       Description: A function that writes User Settings to DynamoDB
       Events:
         DiscJarAPI:

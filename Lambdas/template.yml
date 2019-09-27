@@ -133,6 +133,61 @@ Resources:
 #End of User Lambdas
 #-------------------------------------------------------------------------------
 
+#Discipline Jar Proposals
+  DisciplineJarProposalWriteCookieProposal:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: DisciplineJarProposal_Write_CookieProposal
+      Description: A function that writes a new cookie proposal to the proposals table.
+      CodeUri: DisciplineJarProposal_Write_CookieProposal/
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt DynamoDBFullControl.Arn
+      Runtime: python3.7
+      Timeout: 10
+      MemorySize: 768
+      Events:
+        DiscJarAPI:
+          Type: Api
+          Properties:
+            RestApiId: 
+              Ref: APIGateway
+            Path: /cookieproposal
+            Method: POST
+            Auth:
+              Authorizer: None
+      Tags:
+        Entity: DisciplineJar Proposal
+        Trigger: API Gateway
+        Operation: Write
+        Destination: DynamoDB
+
+#End of Cookie Proposal Lambda
+#-------------------------------------------------------------------------------
+
+#Start of SMS Service Lambdas
+  SMSServiceSendSMSToUsers:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: SMSService_SendSMSToUsers
+      Description: A function that get's a random cookie, get's all users, loops through all users and sends SMS texts to each one.
+      CodeUri: SMSService_SendSMSToUsers/
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt DynamoDBFullControl.Arn
+      Runtime: python3.7
+      Timeout: 30
+      MemorySize: 3008
+      Events:
+        Cron:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 8 * * ? *)
+            Name: DailyMorning
+            Description: Every morning at 8am
+            Enabled: True
+      Tags:
+        Entity: SMSService
+        Trigger: Unknown
+        Destination: nexmo
 #End of Lambdas
 #==========================================================================================================
 
@@ -187,12 +242,20 @@ Resources:
       TableName: User
     Type: AWS::Serverless::SimpleTable
     
-  Content:
+  DisciplineJar:
     Properties:
       PrimaryKey:
-        Name: Content_Id
+        Name: Cookie_Id
         Type: String
-      TableName: Content
+      TableName: DisciplineJar
+    Type: AWS::Serverless::SimpleTable
+  
+  DisciplineJarProposals:
+    Properties:
+      PrimaryKey:
+        Name: Proposal_Id
+        Type: String
+      TableName: DisciplineJar_Proposals
     Type: AWS::Serverless::SimpleTable
 
 #End of DynamoDB Tables
