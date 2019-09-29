@@ -93,7 +93,7 @@ Resources:
     Type: AWS::IAM::Role
   SMSServiceSendSMSToUsers:
     Properties:
-      CodeUri: s3://discjarsambuild/98780f3997e09f0c43788942a23aa54d
+      CodeUri: s3://discjarsambuild/58f7dd64a076f9ee067c558556813e43
       Description: A function that get's a random cookie, get's all users, loops through
         all users and sends SMS texts to each one.
       Events:
@@ -120,7 +120,7 @@ Resources:
     Type: AWS::Serverless::Function
   SMSServiceTestingSendToMeOnly:
     Properties:
-      CodeUri: s3://discjarsambuild/304c601bd897604ab66fbca15c067f86
+      CodeUri: s3://discjarsambuild/9381c146bd95f5ab6e19ff81f5e8ef87
       Description: A function that get's a random cookie, get's all users, loops through
         all users and sends SMS texts to each one.
       FunctionName: SMSService_TestingSendToMeOnly

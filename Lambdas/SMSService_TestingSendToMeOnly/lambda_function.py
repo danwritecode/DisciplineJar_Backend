@@ -76,9 +76,9 @@ def sendSMS(phoneNum, cookieTx, *args, **kwargs):
     else:
         smsText = 'Here is your daily cookie from the Discipline Jar. Submit your own cookie at https://disciplinejar.io. \n \n{} \n \n{}'.format(cookieTx, personalMessage)        
 
-    account_sid = 'AC13166e3c1309abc8a083f1c81f769931'
-    auth_token = 'b677857cf3415fbb474b7a81cf2b17d5'
-    fromSid = 'MGcb27e9670312fde424ed3d44b810ff6b'
+    account_sid = ''
+    auth_token = ''
+    fromSid = ''
     
     client = Client(account_sid, auth_token)
 
