@@ -188,6 +188,22 @@ Resources:
         Entity: SMSService
         Trigger: Unknown
         Destination: nexmo
+
+  SMSServiceTestingSendToMeOnly:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: SMSService_TestingSendToMeOnly
+      Description: A function that get's a random cookie, get's all users, loops through all users and sends SMS texts to each one.
+      CodeUri: SMSService_TestingSendToMeOnly/
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt DynamoDBFullControl.Arn
+      Runtime: python3.7
+      Timeout: 30
+      MemorySize: 3008
+      Tags:
+        Entity: SMSService
+        Trigger: Unknown
+        Destination: nexmo
 #End of Lambdas
 #==========================================================================================================
 

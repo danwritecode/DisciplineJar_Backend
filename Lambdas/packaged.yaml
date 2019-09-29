@@ -93,7 +93,7 @@ Resources:
     Type: AWS::IAM::Role
   SMSServiceSendSMSToUsers:
     Properties:
-      CodeUri: s3://discjarsambuild/1818f428fa475689aa449a0704a9e2ab
+      CodeUri: s3://discjarsambuild/98780f3997e09f0c43788942a23aa54d
       Description: A function that get's a random cookie, get's all users, loops through
         all users and sends SMS texts to each one.
       Events:
@@ -105,6 +105,25 @@ Resources:
             Schedule: cron(0 8 * * ? *)
           Type: Schedule
       FunctionName: SMSService_SendSMSToUsers
+      Handler: lambda_function.lambda_handler
+      MemorySize: 3008
+      Role:
+        Fn::GetAtt:
+        - DynamoDBFullControl
+        - Arn
+      Runtime: python3.7
+      Tags:
+        Destination: nexmo
+        Entity: SMSService
+        Trigger: Unknown
+      Timeout: 30
+    Type: AWS::Serverless::Function
+  SMSServiceTestingSendToMeOnly:
+    Properties:
+      CodeUri: s3://discjarsambuild/304c601bd897604ab66fbca15c067f86
+      Description: A function that get's a random cookie, get's all users, loops through
+        all users and sends SMS texts to each one.
+      FunctionName: SMSService_TestingSendToMeOnly
       Handler: lambda_function.lambda_handler
       MemorySize: 3008
       Role:

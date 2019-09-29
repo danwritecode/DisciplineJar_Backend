@@ -15,6 +15,8 @@ def lambda_handler(event, context):
         # Not all users have a personal message so we have to check if it exists before trying to parse it.
         try:
             personalMessage = user['Personal_Message_Tx']
+            print('Personal Message: {}'.format(personalMessage))
+            print('Sending to Number: {}'.format(phoneNum))
 
             try:
                 sendSMS(phoneNum, cookie, personalMessage=personalMessage)
@@ -29,6 +31,7 @@ def lambda_handler(event, context):
             except Exception as e:
                 print(e)
                 pass # doing nothing on exception
+            
         
 
 def getUsers():
@@ -64,16 +67,18 @@ def getCookie():
 
 
 def sendSMS(phoneNum, cookieTx, *args, **kwargs):
+    print('Kwargs: {}'.format(kwargs))
     personalMessage = kwargs.get('personalMessage', None)
+    print(personalMessage)
 
     if(personalMessage == None):
         smsText = 'Here is your daily cookie from the Discipline Jar. Submit your own cookie at https://disciplinejar.io. \n \n{}'.format(cookieTx)
     else:
-        smsText = 'Here is your daily cookie from the Discipline Jar. Submit your own cookie at https://disciplinejar.io. \n \n{} \n \n{}'.format(cookieTx, personalMessage) 
+        smsText = 'Here is your daily cookie from the Discipline Jar. Submit your own cookie at https://disciplinejar.io. \n \n{} \n \n{}'.format(cookieTx, personalMessage)        
 
-    account_sid = ''
-    auth_token = ''
-    fromSid = ''
+    account_sid = 'AC13166e3c1309abc8a083f1c81f769931'
+    auth_token = 'b677857cf3415fbb474b7a81cf2b17d5'
+    fromSid = 'MGcb27e9670312fde424ed3d44b810ff6b'
     
     client = Client(account_sid, auth_token)
 
@@ -81,7 +86,7 @@ def sendSMS(phoneNum, cookieTx, *args, **kwargs):
                     .create(
                         body= smsText,
                         from_= fromSid,
-                        to=phoneNum
+                        to='+12154507196'
                     )
 
     print(message.sid)
