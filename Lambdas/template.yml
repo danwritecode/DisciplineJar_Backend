@@ -76,6 +76,33 @@ Resources:
         Operation: Write
         Destination: DynamoDB
 
+  UserUpdateStatus:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: User_Update_Status
+      Description: A function that subscribes or unsubscribes a user.
+      CodeUri: User_Update_Status/
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt DynamoDBFullControl.Arn
+      Runtime: python3.7
+      Timeout: 10
+      MemorySize: 768
+      Events:
+        DiscJarAPI:
+          Type: Api
+          Properties:
+            RestApiId: 
+              Ref: APIGateway
+            Path: /user/status
+            Method: POST
+            Auth:
+              Authorizer: None
+      Tags:
+        Entity: User
+        Trigger: API Gateway
+        Operation: Write
+        Destination: DynamoDB
+
   UserReadSettings:
     Type: AWS::Serverless::Function
     Properties:

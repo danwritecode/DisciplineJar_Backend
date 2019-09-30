@@ -9,6 +9,7 @@ def lambda_handler(event, context):
     print(event)
 
     PhoneNumber_Tx = event['phone_number']
+    status = event['Active']
     
     #create timestamp in EPOCH
     epochCurrent = calendar.timegm(time.gmtime())
@@ -16,6 +17,7 @@ def lambda_handler(event, context):
     #create user Dict that will be passed to DynamoDB
     user = {}
     user["Phone_Num"] = PhoneNumber_Tx
+    user["Active"] = status
     user["CreatedOn_Dt"] = epochCurrent
     
     print("Writing to Dynamo, here is the Object that is being written: {}".format(user))

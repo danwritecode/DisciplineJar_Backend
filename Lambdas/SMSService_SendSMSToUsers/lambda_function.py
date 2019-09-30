@@ -10,25 +10,26 @@ def lambda_handler(event, context):
     print('Cookie found: {}'.format(cookie))
 
     for user in users:
-        phoneNum = user['Phone_Num']
+        if(user['Active'] == True):
+            phoneNum = user['Phone_Num']
 
-        # Not all users have a personal message so we have to check if it exists before trying to parse it.
-        try:
-            personalMessage = user['Personal_Message_Tx']
-
+            # Not all users have a personal message so we have to check if it exists before trying to parse it.
             try:
-                sendSMS(phoneNum, cookie, personalMessage=personalMessage)
-            except Exception as e:
-                print(e)
-                pass # doing nothing on exception
-        except:
-            print('Sending to Number: {}'.format(phoneNum))
+                personalMessage = user['Personal_Message_Tx']
 
-            try:
-                sendSMS(phoneNum, cookie)
-            except Exception as e:
-                print(e)
-                pass # doing nothing on exception
+                try:
+                    sendSMS(phoneNum, cookie, personalMessage=personalMessage)
+                except Exception as e:
+                    print(e)
+                    pass # doing nothing on exception
+            except:
+                print('Sending to Number: {}'.format(phoneNum))
+
+                try:
+                    sendSMS(phoneNum, cookie)
+                except Exception as e:
+                    print(e)
+                    pass # doing nothing on exception
         
 
 def getUsers():

@@ -93,7 +93,7 @@ Resources:
     Type: AWS::IAM::Role
   SMSServiceSendSMSToUsers:
     Properties:
-      CodeUri: s3://discjarsambuild/58f7dd64a076f9ee067c558556813e43
+      CodeUri: s3://discjarsambuild/ff1c6c47bc9e75d1c18657b1eacfe5a3
       Description: A function that get's a random cookie, get's all users, loops through
         all users and sends SMS texts to each one.
       Events:
@@ -120,7 +120,7 @@ Resources:
     Type: AWS::Serverless::Function
   SMSServiceTestingSendToMeOnly:
     Properties:
-      CodeUri: s3://discjarsambuild/9381c146bd95f5ab6e19ff81f5e8ef87
+      CodeUri: s3://discjarsambuild/b20e2e4b25e3e9b3d700bc3531b3d3ed
       Description: A function that get's a random cookie, get's all users, loops through
         all users and sends SMS texts to each one.
       FunctionName: SMSService_TestingSendToMeOnly
@@ -202,6 +202,35 @@ Resources:
         Trigger: API Gateway
       Timeout: 10
     Type: AWS::Serverless::Function
+  UserUpdateStatus:
+    Properties:
+      CodeUri: s3://discjarsambuild/c3833c59cd8783ebdbcc06ea302ba805
+      Description: A function that subscribes or unsubscribes a user.
+      Events:
+        DiscJarAPI:
+          Properties:
+            Auth:
+              Authorizer: None
+            Method: POST
+            Path: /user/status
+            RestApiId:
+              Ref: APIGateway
+          Type: Api
+      FunctionName: User_Update_Status
+      Handler: lambda_function.lambda_handler
+      MemorySize: 768
+      Role:
+        Fn::GetAtt:
+        - DynamoDBFullControl
+        - Arn
+      Runtime: python3.7
+      Tags:
+        Destination: DynamoDB
+        Entity: User
+        Operation: Write
+        Trigger: API Gateway
+      Timeout: 10
+    Type: AWS::Serverless::Function
   UserWriteSettings:
     Properties:
       CodeUri: s3://discjarsambuild/d3f472bcc2048eaeb0052166c6dd7c6a
@@ -233,7 +262,7 @@ Resources:
     Type: AWS::Serverless::Function
   UserWriteSignup:
     Properties:
-      CodeUri: s3://discjarsambuild/91d559bbdeb1adb09f48a13cec642903
+      CodeUri: s3://discjarsambuild/994a6f17e08f3f70a1af2a7c0975e84e
       Description: A function that is triggered by API gateway and writes a user to
         the user table.
       Events:
